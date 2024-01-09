@@ -13,7 +13,6 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogContentText,
   DialogActions,
   LinearProgress,
   TextField, 
@@ -23,35 +22,22 @@ import {
   Select
 } from "@mui/material";
 
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import StopIcon from '@mui/icons-material/Stop';
+
 function Dashboard() {
-  const [openDialog, setOpenDialog] = useState(false);
-
-  const [progress, setProgress] = useState(0);
-
-  const [newEnvironment, setNewEnvironment] = useState({ fagkode: '', konfigurasjon: '', status: 'Stoppet' });
-
-  const handleFagkodeChange = (event) => {
-    setNewEnvironment({ ...newEnvironment, fagkode: event.target.value });
+  const lightStyle = {
+    height: '10px',
+    width: '10px',
+    borderRadius: '50%',
+    display: 'inline-block',
+    marginLeft: '10px',
+    marginRight: '10px'
   };
-
-  const handleKonfigurasjonChange = (event) => {
-    setNewEnvironment({ ...newEnvironment, konfigurasjon: event.target.value });
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    setEnvironments([...environments, newEnvironment]);
-    handleCloseDialog();
-  };
-
-  const handleOpenDialog = () => {
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-  };
-
+  
+  const greenLight = { ...lightStyle, backgroundColor: 'green' };
+  const redLight = { ...lightStyle, backgroundColor: 'red' };
+  
   const [environments, setEnvironments] = useState([
     {
       id: 1,
@@ -84,6 +70,35 @@ function Dashboard() {
       status: "Aktiv",
     },
   ]);
+
+  const [openDialog, setOpenDialog] = useState(false);
+
+  const [progress, setProgress] = useState(0);
+
+  const [newEnvironment, setNewEnvironment] = useState({ id: 0, fagkode: '', konfigurasjon: '', status: 'Stoppet' });
+
+  const handleFagkodeChange = (event) => {
+    setNewEnvironment({ ...newEnvironment, fagkode: event.target.value });
+  };
+
+  const handleKonfigurasjonChange = (event) => {
+    setNewEnvironment({ ...newEnvironment, konfigurasjon: event.target.value });
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    setNewEnvironment({ ...newEnvironment, id: environments.length + 1 });
+    setEnvironments([...environments, newEnvironment]);
+    handleCloseDialog();
+  };
+
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
 
   useEffect(() => {
     // Update progress when environments change
@@ -170,22 +185,23 @@ function Dashboard() {
               <TableRow>
                 <TableCell>Fagkode</TableCell>
                 <TableCell>Konfigurasjon</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell></TableCell>
+                <TableCell>Handling</TableCell>
                 <TableCell></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {environments.map((env) => (
                 <TableRow key={env.id}>
-                  <TableCell>{env.fagkode}</TableCell>
+                  <TableCell>
+                    <span style={env.status === 'Aktiv' ? greenLight : redLight} />
+                    {env.fagkode}
+                  </TableCell>
                   <TableCell>{env.konfigurasjon}</TableCell>
-                  <TableCell>{env.status}</TableCell>
                   <TableCell
-                    style={{ cursor: "pointer", color: "blue" }}
+                    style={{ cursor: "pointer" }}
                     onClick={() => toggleEnvironmentStatus(env.id)}
                   >
-                    {env.status === "Aktiv" ? "Stopp" : "Start"}
+                    {env.status === "Aktiv" ? <StopIcon /> : <PlayArrowIcon />}
                   </TableCell>
                   <TableCell
                     style={{ cursor: "pointer", color: "red" }}
