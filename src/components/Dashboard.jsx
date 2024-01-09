@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import Container from "./Container";
 import {
@@ -16,10 +16,33 @@ import {
   DialogContentText,
   DialogActions,
   LinearProgress,
+  TextField, 
+  MenuItem, 
+  FormControl, 
+  InputLabel, 
+  Select
 } from "@mui/material";
 
 function Dashboard() {
   const [openDialog, setOpenDialog] = useState(false);
+
+  const [progress, setProgress] = useState(0);
+
+  const [newEnvironment, setNewEnvironment] = useState({ fagkode: '', konfigurasjon: '', status: 'Stoppet' });
+
+  const handleFagkodeChange = (event) => {
+    setNewEnvironment({ ...newEnvironment, fagkode: event.target.value });
+  };
+
+  const handleKonfigurasjonChange = (event) => {
+    setNewEnvironment({ ...newEnvironment, konfigurasjon: event.target.value });
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    setEnvironments([...environments, newEnvironment]);
+    handleCloseDialog();
+  };
 
   const handleOpenDialog = () => {
     setOpenDialog(true);
@@ -62,7 +85,11 @@ function Dashboard() {
     },
   ]);
 
-  const [progress, setProgress] = useState(environments.length * 10);
+  useEffect(() => {
+    // Update progress when environments change
+    const newProgress = Math.min(Math.max(environments.length * 10, 0), 100);
+    setProgress(newProgress);
+  }, [environments]);
 
   const dashboardContainerStyle = {
     width: "80%", // Width of the container for the dashboard
@@ -107,13 +134,34 @@ function Dashboard() {
       <Dialog open={openDialog} onClose={handleCloseDialog}>
         <DialogTitle>Nytt miljø</DialogTitle>
         <DialogContent>
-          <DialogContentText>Her opprettes nye miljø</DialogContentText>
+          <form onSubmit={handleSubmit}>
+            <TextField
+              label="Fagkode"
+              value={newEnvironment.fagkode}
+              onChange={handleFagkodeChange}
+              fullWidth
+              margin="normal"
+            />
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Konfigurasjon</InputLabel>
+              <Select
+                value={newEnvironment.konfigurasjon}
+                label="Konfigurasjon"
+                onChange={handleKonfigurasjonChange}
+              >
+                <MenuItem value="C++">C++</MenuItem>
+                <MenuItem value="Python">Python</MenuItem>
+                <MenuItem value="Java">Java</MenuItem>
+                <MenuItem value="JavaScript">JavaScript</MenuItem>
+                <MenuItem value="Ruby">Ruby</MenuItem>
+              </Select>
+            </FormControl>
+            <DialogActions>
+              <Button onClick={handleCloseDialog}>Avbryt</Button>
+              <Button type="submit" color="primary">Legg til</Button>
+            </DialogActions>
+          </form>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary">
-            Lukk
-          </Button>
-        </DialogActions>
       </Dialog>
       {environments.length > 0 ? (
         <TableContainer component={Paper} elevation={0}>
